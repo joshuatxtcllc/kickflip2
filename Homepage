@@ -1,0 +1,217 @@
+// frontend/src/pages/index.tsx
+import { useState } from 'react';
+import { useSession, signIn } from 'next-auth/react';
+import { useRouter } from 'next/router';
+import { 
+  Box, 
+  Button, 
+  Container, 
+  Typography, 
+  Grid, 
+  Card, 
+  CardContent, 
+  AppBar, 
+  Toolbar, 
+  IconButton,
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Divider,
+} from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import PeopleIcon from '@mui/icons-material/People';
+import Head from 'next/head';
+import Image from 'next/image';
+import Link from 'next/link';
+
+export default function Home() {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // Redirect to dashboard if user is already logged in
+  if (session) {
+    router.push('/dashboard');
+    return null;
+  }
+
+  const features = [
+    {
+      title: 'AI-Powered Funnel Optimization',
+      description: 'Let AI analyze your funnel performance and suggest improvements based on industry data and trends.',
+      icon: <AutoFixHighIcon fontSize="large" color="primary" />
+    },
+    {
+      title: 'Drag-and-Drop Editor',
+      description: 'Create stunning sales funnels with our intuitive drag-and-drop editor. No coding skills required.',
+      icon: <DashboardIcon fontSize="large" color="primary" />
+    },
+    {
+      title: 'Real-time Analytics',
+      description: 'Track visitor behavior, conversion rates, and revenue in real-time with detailed analytics.',
+      icon: <BarChartIcon fontSize="large" color="primary" />
+    },
+    {
+      title: 'Team Collaboration',
+      description: 'Work together with your team members to create, edit, and optimize your sales funnels.',
+      icon: <PeopleIcon fontSize="large" color="primary" />
+    }
+  ];
+
+  return (
+    <>
+      <Head>
+        <title>Kickflip Funnels | AI-Enhanced Sales Funnel Builder</title>
+        <meta name="description" content="Create high-converting sales funnels with the help of AI optimization" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+
+      <AppBar position="static">
+        <Toolbar>
+          <IconButton
+            size="large"
+            edge="start"
+            color="inherit"
+            aria-label="menu"
+            sx={{ mr: 2 }}
+            onClick={() => setDrawerOpen(true)}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            Kickflip Funnels
+          </Typography>
+          <Button color="inherit" onClick={() => signIn()}>Login</Button>
+        </Toolbar>
+      </AppBar>
+
+      <Drawer
+        anchor="left"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+      >
+        <Box
+          sx={{ width: 250 }}
+          role="presentation"
+          onClick={() => setDrawerOpen(false)}
+          onKeyDown={() => setDrawerOpen(false)}
+        >
+          <List>
+            <ListItem button>
+              <ListItemIcon>
+                <DashboardIcon />
+              </ListItemIcon>
+              <ListItemText primary="Features" />
+            </ListItem>
+            <ListItem button>
+              <ListItemIcon>
+                <BarChartIcon />
+              </ListItemIcon>
+              <ListItemText primary="Pricing" />
+            </ListItem>
+          </List>
+          <Divider />
+          <List>
+            <ListItem button onClick={() => signIn()}>
+              <ListItemIcon>
+                <PeopleIcon />
+              </ListItemIcon>
+              <ListItemText primary="Login" />
+            </ListItem>
+          </List>
+        </Box>
+      </Drawer>
+
+      <Box
+        sx={{
+          bgcolor: 'background.paper',
+          pt: 8,
+          pb: 6,
+        }}
+      >
+        <Container maxWidth="sm">
+          <Typography
+            component="h1"
+            variant="h2"
+            align="center"
+            color="text.primary"
+            gutterBottom
+          >
+            Kickflip Funnels
+          </Typography>
+          <Typography variant="h5" align="center" color="text.secondary" paragraph>
+            Build high-converting sales funnels with AI-powered optimization.
+            Stay ahead of market trends and boost your conversion rates.
+          </Typography>
+          <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+            <Button variant="contained" size="large" sx={{ mx: 1 }} onClick={() => signIn()}>
+              Get Started
+            </Button>
+            <Button variant="outlined" size="large" sx={{ mx: 1 }}>
+              Learn More
+            </Button>
+          </Box>
+        </Container>
+      </Box>
+      
+      <Container sx={{ py: 8 }} maxWidth="md">
+        <Typography
+          component="h2"
+          variant="h3"
+          align="center"
+          color="text.primary"
+          gutterBottom
+        >
+          Features
+        </Typography>
+        <Grid container spacing={4}>
+          {features.map((feature, index) => (
+            <Grid item key={index} xs={12} sm={6} md={6}>
+              <Card
+                sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+              >
+                <CardContent sx={{ flexGrow: 1, textAlign: 'center' }}>
+                  <Box sx={{ mb: 2 }}>
+                    {feature.icon}
+                  </Box>
+                  <Typography gutterBottom variant="h5" component="h2">
+                    {feature.title}
+                  </Typography>
+                  <Typography>
+                    {feature.description}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      </Container>
+
+      <Box component="footer" sx={{ bgcolor: 'background.paper', py: 6 }}>
+        <Container maxWidth="lg">
+          <Typography variant="h6" align="center" gutterBottom>
+            Kickflip Funnels
+          </Typography>
+          <Typography
+            variant="subtitle1"
+            align="center"
+            color="text.secondary"
+            component="p"
+          >
+            Build better sales funnels, faster.
+          </Typography>
+          <Typography variant="body2" color="text.secondary" align="center">
+            {'© '}
+            {new Date().getFullYear()}
+            {' Kickflip Funnels. All rights reserved.'}
+          </Typography>
+        </Container>
+      </Box>
+    </>
+  );
+}
