@@ -1,0 +1,151 @@
+// frontend/src/components/funnels/FunnelCard.tsx
+import { useRouter } from 'next/router';
+import {
+  Box,
+  Card,
+  CardContent,
+  CardActions,
+  Button,
+  Typography,
+  Chip,
+  IconButton,
+  Menu,
+  MenuItem,
+  LinearProgress,
+} from '@mui/material';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import EditIcon from '@mui/icons-material/Edit';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import DeleteIcon from '@mui/icons-material/Delete';
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
+import { useState } from 'react';
+
+interface FunnelPerformance {
+  visits: number;
+  conversions: number;
+  rate: number;
+}
+
+interface Funnel {
+  id: string;
+  name: string;
+  description: string;
+  status: 'active' | 'draft' | 'archived';
+  performance: FunnelPerformance;
+  lastUpdated: string;
+}
+
+interface FunnelCardProps {
+  funnel: Funnel;
+}
+
+export default function FunnelCard({ funnel }: FunnelCardProps) {
+  const router = useRouter();
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleEdit = () => {
+    router.push(`/dashboard/funnels/${funnel.id}/edit`);
+    handleClose();
+  };
+
+  const handleDuplicate = () => {
+    // Duplicate funnel logic here
+    handleClose();
+  };
+
+  const handleDelete = () => {
+    // Delete funnel logic here
+    handleClose();
+  };
+
+  const handleAIOptimize = () => {
+    router.push(`/dashboard/funnels/${funnel.id}/optimize`);
+    handleClose();
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active':
+        return 'success';
+      case 'draft':
+        return 'warning';
+      case 'archived':
+        return 'error';
+      default:
+        return 'default';
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+  };
+  
+  const getConversionRateColor = (rate: number) => {
+    if (rate === 0) return 'grey';
+    if (rate < 5) return '#f44336'; // Red
+    if (rate < 10) return '#ff9800'; // Orange
+    if (rate < 15) return '#2196f3'; // Blue
+    return '#4caf50'; // Green
+  };
+
+  return (
+    <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <CardContent sx={{ flexGrow: 1 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+          <Typography variant="h6" component="div" noWrap>
+            {funnel.name}
+          </Typography>
+          <Box>
+            <Chip
+              label={funnel.status.charAt(0).toUpperCase() + funnel.status.slice(1)}
+              color={getStatusColor(funnel.status) as any}
+              size="small"
+              sx={{ mr: 1 }}
+            />
+            <IconButton
+              aria-label="more"
+              id="funnel-menu-button"
+              aria-controls={open ? 'funnel-menu' : undefined}
+              aria-expanded={open ? 'true' : undefined}
+              aria-haspopup="true"
+              onClick={handleClick}
+              size="small"
+            >
+              <MoreVertIcon />
+            </IconButton>
+            <Menu
+              id="funnel-menu"
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleClose}
+              MenuListProps={{
+                'aria-labelledby': 'funnel-menu-button',
+              }}
+            >
+              <MenuItem onClick={handleEdit}>
+                <EditIcon fontSize="small" sx={{ mr: 1 }} />
+                Edit
+              </MenuItem>
+              <MenuItem onClick={handleDuplicate}>
+                <ContentCopyIcon fontSize="small" sx={{ mr: 1 }} />
+                Duplicate
+              </MenuItem>
+              <MenuItem onClick={handleAIOptimize}>
+                <AutoFixHighIcon fontSize="small" sx={{ mr: 1 }} />
+                AI Optimize
+              </MenuItem>
+              <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
+                <DeleteIcon fontSize="small" sx={{ mr: 1 }} />
+                Delete
+              </MenuItem>
+            </Menu>
