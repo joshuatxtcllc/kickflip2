@@ -1,0 +1,242 @@
+// frontend/src/components/layouts/DashboardLayout.tsx
+import { ReactNode, useState } from 'react';
+import { useRouter } from 'next/router';
+import { useSession, signOut } from 'next-auth/react';
+import {
+  AppBar,
+  Box,
+  CssBaseline,
+  Divider,
+  Drawer,
+  IconButton,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Toolbar,
+  Typography,
+  Avatar,
+  Menu,
+  MenuItem,
+  Button,
+} from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import FunnelIcon from '@mui/icons-material/FilterAlt';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import SettingsIcon from '@mui/icons-material/Settings';
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
+import PeopleIcon from '@mui/icons-material/People';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+
+const drawerWidth = 240;
+
+interface DashboardLayoutProps {
+  children: ReactNode;
+}
+
+export default function DashboardLayout({ children }: DashboardLayoutProps) {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
+
+  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleSignOut = () => {
+    signOut({ callbackUrl: '/' });
+  };
+
+  const menuItems = [
+    {
+      text: 'Dashboard',
+      icon: <DashboardIcon />,
+      href: '/dashboard',
+    },
+    {
+      text: 'Funnels',
+      icon: <FunnelIcon />,
+      href: '/dashboard/funnels',
+    },
+    {
+      text: 'Analytics',
+      icon: <BarChartIcon />,
+      href: '/dashboard/analytics',
+    },
+    {
+      text: 'AI Assistant',
+      icon: <AutoFixHighIcon />,
+      href: '/dashboard/ai-assistant',
+    },
+    {
+      text: 'Team',
+      icon: <PeopleIcon />,
+      href: '/dashboard/team',
+    },
+    {
+      text: 'Settings',
+      icon: <SettingsIcon />,
+      href: '/dashboard/settings',
+    },
+  ];
+
+  const drawer = (
+    <div>
+      <Toolbar sx={{ justifyContent: 'center' }}>
+        <Typography variant="h6" noWrap component="div">
+          Kickflip Funnels
+        </Typography>
+      </Toolbar>
+      <Divider />
+      <List>
+        {menuItems.map((item) => (
+          <ListItem key={item.text} disablePadding>
+            <ListItemButton
+              selected={router.pathname === item.href}
+              onClick={() => router.push(item.href)}
+            >
+              <ListItemIcon>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.text} />
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
+    </div>
+  );
+
+  return (
+    <Box sx={{ display: 'flex' }}>
+      <CssBaseline />
+      <AppBar
+        position="fixed"
+        sx={{
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          ml: { sm: `${drawerWidth}px` },
+        }}
+      >
+        <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={handleDrawerToggle}
+            sx={{ mr: 2, display: { sm: 'none' } }}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+            {router.pathname === '/dashboard'
+              ? 'Dashboard'
+              : router.pathname.split('/').pop()?.charAt(0).toUpperCase() +
+                router.pathname.split('/').pop()?.slice(1)}
+          </Typography>
+          
+          <IconButton
+            size="large"
+            aria-label="show notifications"
+            color="inherit"
+          >
+            <NotificationsIcon />
+          </IconButton>
+          
+          <IconButton
+            size="large"
+            aria-label="account of current user"
+            aria-controls="menu-appbar"
+            aria-haspopup="true"
+            onClick={handleMenu}
+            color="inherit"
+          >
+            {session?.user?.image ? (
+              <Avatar alt={session.user.name || ''} src={session.user.image} />
+            ) : (
+              <AccountCircleIcon />
+            )}
+          </IconButton>
+          
+          <Menu
+            id="menu-appbar"
+            anchorEl={anchorEl}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            keepMounted
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            open={Boolean(anchorEl)}
+            onClose={handleClose}
+          >
+            <MenuItem onClick={() => router.push('/dashboard/profile')}>
+              Profile
+            </MenuItem>
+            <MenuItem onClick={handleSignOut}>Sign Out</MenuItem>
+          </Menu>
+        </Toolbar>
+      </AppBar>
+      
+      <Box
+        component="nav"
+        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+        aria-label="dashboard folders"
+      >
+        <Drawer
+          variant="temporary"
+          open={mobileOpen}
+          onClose={handleDrawerToggle}
+          ModalProps={{
+            keepMounted: true,
+          }}
+          sx={{
+            display: { xs: 'block', sm: 'none' },
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
+              width: drawerWidth,
+            },
+          }}
+        >
+          {drawer}
+        </Drawer>
+        <Drawer
+          variant="permanent"
+          sx={{
+            display: { xs: 'none', sm: 'block' },
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
+              width: drawerWidth,
+            },
+          }}
+          open
+        >
+          {drawer}
+        </Drawer>
+      </Box>
+      
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: 3,
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          mt: '64px',
+        }}
+      >
+        {children}
+      </Box>
+    </Box>
+  );
+}
