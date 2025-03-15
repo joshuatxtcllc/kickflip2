@@ -1,0 +1,48 @@
+# Kickflip Funnels Project Structure
+
+```
+kickflip-funnels/
+├── frontend/                 # Next.js Frontend Application
+│   ├── public/               # Static assets
+│   ├── src/
+│   │   ├── components/       # Reusable UI components
+│   │   ├── context/          # React context providers
+│   │   ├── hooks/            # Custom React hooks
+│   │   ├── pages/            # Next.js pages
+│   │   ├── services/         # API service clients
+│   │   ├── styles/           # Global styles
+│   │   ├── utils/            # Utility functions
+│   │   └── types/            # TypeScript type definitions
+│   ├── .env                  # Environment variables
+│   ├── package.json          # Frontend dependencies
+│   └── tsconfig.json         # TypeScript configuration
+│
+├── backend/                  # Node.js Backend Application
+│   ├── src/
+│   │   ├── api/              # API routes
+│   │   ├── config/           # Configuration files
+│   │   ├── controllers/      # Request handlers
+│   │   ├── middleware/       # Express middleware
+│   │   ├── models/           # Database models
+│   │   ├── services/         # Business logic
+│   │   ├── utils/            # Utility functions
+│   │   └── app.js            # Express application setup
+│   ├── .env                  # Environment variables
+│   ├── package.json          # Backend dependencies
+│   └── tsconfig.json         # TypeScript configuration
+│
+├── ai-service/               # AI Service Application
+│   ├── src/
+│   │   ├── api/              # API routes
+│   │   ├── models/           # ML models and handlers
+│   │   ├── services/         # AI services
+│   │   ├── utils/            # Utility functions
+│   │   └── app.js            # Express application setup
+│   ├── .env                  # Environment variables
+│   ├── package.json          # AI service dependencies
+│   └── docker-compose.yml    # Docker configuration
+│
+├── .github/                  # CI/CD workflows
+├── README.md                 # Project documentation
+└── docker-compose.yml        # Main Docker configuration
+```
