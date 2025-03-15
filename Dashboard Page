@@ -1,0 +1,146 @@
+// frontend/src/pages/dashboard/index.tsx
+import { useState } from 'react';
+import { useSession, signOut } from 'next-auth/react';
+import { useRouter } from 'next/router';
+import { 
+  Box, 
+  Container, 
+  Typography, 
+  Grid, 
+  Card, 
+  CardContent, 
+  CardActions,
+  Button,
+  AppBar, 
+  Toolbar, 
+  IconButton,
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Divider,
+  Avatar,
+  Menu,
+  MenuItem,
+} from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import FunnelIcon from '@mui/icons-material/FilterAlt';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import SettingsIcon from '@mui/icons-material/Settings';
+import AddIcon from '@mui/icons-material/Add';
+import Head from 'next/head';
+import Link from 'next/link';
+import DashboardLayout from '../../components/layouts/DashboardLayout';
+import FunnelCard from '../../components/funnels/FunnelCard';
+
+// Mock data for demonstration
+const mockFunnels = [
+  {
+    id: '1',
+    name: 'E-commerce Product Launch',
+    description: 'A funnel for launching a new product with pre-sale and upsell pages',
+    status: 'active',
+    performance: {
+      visits: 1245,
+      conversions: 187,
+      rate: 15.02
+    },
+    lastUpdated: '2023-08-20T14:22:00Z'
+  },
+  {
+    id: '2',
+    name: 'SaaS Free Trial',
+    description: 'Convert visitors into free trial users with a multi-step funnel',
+    status: 'draft',
+    performance: {
+      visits: 0,
+      conversions: 0,
+      rate: 0
+    },
+    lastUpdated: '2023-08-19T09:45:00Z'
+  },
+  {
+    id: '3',
+    name: 'Webinar Registration',
+    description: 'Get users to register for your upcoming webinar and sell your course',
+    status: 'active',
+    performance: {
+      visits: 879,
+      conversions: 103,
+      rate: 11.72
+    },
+    lastUpdated: '2023-08-18T16:30:00Z'
+  }
+];
+
+export default function Dashboard() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  
+  // Redirect to login if not authenticated
+  if (status === 'unauthenticated') {
+    router.push('/api/auth/signin');
+    return null;
+  }
+
+  if (status === 'loading') {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <DashboardLayout>
+      <Head>
+        <title>Dashboard | Kickflip Funnels</title>
+      </Head>
+      
+      <Box sx={{ flexGrow: 1, p: 3 }}>
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="h4" component="h1">
+                My Funnels
+              </Typography>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => router.push('/dashboard/funnels/new')}
+              >
+                Create New Funnel
+              </Button>
+            </Box>
+          </Grid>
+          
+          {mockFunnels.map((funnel) => (
+            <Grid item xs={12} sm={6} md={4} key={funnel.id}>
+              <FunnelCard funnel={funnel} />
+            </Grid>
+          ))}
+          
+          {mockFunnels.length === 0 && (
+            <Grid item xs={12}>
+              <Card sx={{ textAlign: 'center', py: 5 }}>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    You don't have any funnels yet
+                  </Typography>
+                  <Typography color="text.secondary" sx={{ mb: 3 }}>
+                    Create your first funnel to start converting visitors into customers
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    startIcon={<AddIcon />}
+                    onClick={() => router.push('/dashboard/funnels/new')}
+                  >
+                    Create Your First Funnel
+                  </Button>
+                </CardContent>
+              </Card>
+            </Grid>
+          )}
+        </Grid>
+      </Box>
+    </DashboardLayout>
+  );
+}
