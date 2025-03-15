@@ -1,0 +1,1065 @@
+// frontend/src/pages/dashboard/funnels/[id]/edit.tsx
+import { useState, useEffect }
+
+// Component to edit element properties
+function ElementProperties({ element, onUpdate }: { element: any; onUpdate: (id: string, field: string, value: any) => void }) {
+  
+  const handleChange = (field: string, value: any) => {
+    onUpdate(element.id, field, value);
+  };
+  
+  // Render different property fields based on element type
+  const renderProperties = () => {
+    switch (element.type) {
+      case 'heading':
+      case 'paragraph':
+        return (
+          <>
+            <TextField
+              label="Content"
+              value={element.content}
+              onChange={(e) => handleChange('content', e.target.value)}
+              multiline
+              fullWidth
+              margin="normal"
+            />
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Font Size</InputLabel>
+              <Select
+                value={element.settings.fontSize}
+                onChange={(e) => handleChange('settings.fontSize', e.target.value)}
+                label="Font Size"
+              >
+                {element.type === 'heading' ? (
+                  <>
+                    <MenuItem value="h1">Heading 1 (Large)</MenuItem>
+                    <MenuItem value="h2">Heading 2</MenuItem>
+                    <MenuItem value="h3">Heading 3</MenuItem>
+                    <MenuItem value="h4">Heading 4</MenuItem>
+                    <MenuItem value="h5">Heading 5</MenuItem>
+                    <MenuItem value="h6">Heading 6 (Small)</MenuItem>
+                  </>
+                ) : (
+                  <>
+                    <MenuItem value="body1">Normal</MenuItem>
+                    <MenuItem value="body2">Small</MenuItem>
+                    <MenuItem value="subtitle1">Subtitle 1</MenuItem>
+                    <MenuItem value="subtitle2">Subtitle 2</MenuItem>
+                  </>
+                )}
+              </Select>
+            </FormControl>
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Alignment</InputLabel>
+              <Select
+                value={element.settings.alignment}
+                onChange={(e) => handleChange('settings.alignment', e.target.value)}
+                label="Alignment"
+              >
+                <MenuItem value="left">Left</MenuItem>
+                <MenuItem value="center">Center</MenuItem>
+                <MenuItem value="right">Right</MenuItem>
+              </Select>
+            </FormControl>
+          </>
+        );
+      
+      case 'image':
+        return (
+          <>
+            <TextField
+              label="Image URL"
+              value={element.content}
+              onChange={(e) => handleChange('content', e.target.value)}
+              fullWidth
+              margin="normal"
+            />
+            <TextField
+              label="Alt Text"
+              value={element.settings.altText}
+              onChange={(e) => handleChange('settings.altText', e.target.value)}
+              fullWidth
+              margin="normal"
+            />
+            <TextField
+              label="Width"
+              value={element.settings.width}
+              onChange={(e) => handleChange('settings.width', e.target.value)}
+              fullWidth
+              margin="normal"
+              helperText="Example: 100%, 300px"
+            />
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Alignment</InputLabel>
+              <Select
+                value={element.settings.alignment}
+                onChange={(e) => handleChange('settings.alignment', e.target.value)}
+                label="Alignment"
+              >
+                <MenuItem value="left">Left</MenuItem>
+                <MenuItem value="center">Center</MenuItem>
+                <MenuItem value="right">Right</MenuItem>
+              </Select>
+            </FormControl>
+          </>
+        );
+      
+      case 'button':
+        return (
+          <>
+            <TextField
+              label="Button Text"
+              value={element.content}
+              onChange={(e) => handleChange('content', e.target.value)}
+              fullWidth
+              margin="normal"
+            />
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Size</InputLabel>
+              <Select
+                value={element.settings.size}
+                onChange={(e) => handleChange('settings.size', e.target.value)}
+                label="Size"
+              >
+                <MenuItem value="small">Small</MenuItem>
+                <MenuItem value="medium">Medium</MenuItem>
+                <MenuItem value="large">Large</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Color</InputLabel>
+              <Select
+                value={element.settings.color}
+                onChange={(e) => handleChange('settings.color', e.target.value)}
+                label="Color"
+              >
+                <MenuItem value="primary">Primary</MenuItem>
+                <MenuItem value="secondary">Secondary</MenuItem>
+                <MenuItem value="success">Success</MenuItem>
+                <MenuItem value="error">Error</MenuItem>
+                <MenuItem value="warning">Warning</MenuItem>
+                <MenuItem value="info">Info</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Alignment</InputLabel>
+              <Select
+                value={element.settings.alignment}
+                onChange={(e) => handleChange('settings.alignment', e.target.value)}
+                label="Alignment"
+              >
+                <MenuItem value="left">Left</MenuItem>
+                <MenuItem value="center">Center</MenuItem>
+                <MenuItem value="right">Right</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Action</InputLabel>
+              <Select
+                value={element.settings.action}
+                onChange={(e) => handleChange('settings.action', e.target.value)}
+                label="Action"
+              >
+                <MenuItem value="none">None</MenuItem>
+                <MenuItem value="next-page">Go to Next Page</MenuItem>
+                <MenuItem value="submit-form">Submit Form</MenuItem>
+                <MenuItem value="external-url">External URL</MenuItem>
+              </Select>
+            </FormControl>
+            {element.settings.action === 'external-url' && (
+              <TextField
+                label="URL"
+                value={element.settings.url || ''}
+                onChange={(e) => handleChange('settings.url', e.target.value)}
+                fullWidth
+                margin="normal"
+              />
+            )}
+          </>
+        );
+        
+      case 'form':
+        return (
+          <>
+            <Typography variant="subtitle2" gutterBottom>Form Fields</Typography>
+            {element.content.fields.map((field: any, index: number) => (
+              <Box key={index} sx={{ mb: 2, p: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
+                <TextField
+                  label="Field Label"
+                  value={field.label}
+                  onChange={(e) => {
+                    const updatedFields = [...element.content.fields];
+                    updatedFields[index].label = e.target.value;
+                    handleChange('content', { ...element.content, fields: updatedFields });
+                  }}
+                  fullWidth
+                  margin="normal"
+                />
+                <FormControl fullWidth margin="normal">
+                  <InputLabel>Field Type</InputLabel>
+                  <Select
+                    value={field.type}
+                    onChange={(e) => {
+                      const updatedFields = [...element.content.fields];
+                      updatedFields[index].type = e.target.value;
+                      handleChange('content', { ...element.content, fields: updatedFields });
+                    }}
+                    label="Field Type"
+                  >
+                    <MenuItem value="text">Text</MenuItem>
+                    <MenuItem value="email">Email</MenuItem>
+                    <MenuItem value="tel">Phone</MenuItem>
+                    <MenuItem value="number">Number</MenuItem>
+                    <MenuItem value="checkbox">Checkbox</MenuItem>
+                  </Select>
+                </FormControl>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
+                  <FormControl>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      size="small"
+                      onClick={() => {
+                        const updatedFields = element.content.fields.filter((_, i) => i !== index);
+                        handleChange('content', { ...element.content, fields: updatedFields });
+                      }}
+                    >
+                      Remove Field
+                    </Button>
+                  </FormControl>
+                  <FormControl>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={() => {
+                        const updatedFields = [...element.content.fields];
+                        updatedFields[index].required = !updatedFields[index].required;
+                        handleChange('content', { ...element.content, fields: updatedFields });
+                      }}
+                    >
+                      {field.required ? 'Make Optional' : 'Make Required'}
+                    </Button>
+                  </FormControl>
+                </Box>
+              </Box>
+            ))}
+            <Button
+              variant="outlined"
+              fullWidth
+              onClick={() => {
+                const newField = { name: `field_${Date.now()}`, label: 'New Field', type: 'text', required: false };
+                handleChange('content', {
+                  ...element.content,
+                  fields: [...element.content.fields, newField],
+                });
+              }}
+              sx={{ mb: 2 }}
+            >
+              Add Field
+            </Button>
+            <Divider sx={{ my: 2 }} />
+            <TextField
+              label="Submit Button Text"
+              value={element.content.submitButton}
+              onChange={(e) => handleChange('content', { ...element.content, submitButton: e.target.value })}
+              fullWidth
+              margin="normal"
+            />
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Form Action</InputLabel>
+              <Select
+                value={element.settings.action}
+                onChange={(e) => handleChange('settings.action', e.target.value)}
+                label="Form Action"
+              >
+                <MenuItem value="none">None (Test Mode)</MenuItem>
+                <MenuItem value="next-page">Go to Next Page</MenuItem>
+                <MenuItem value="lead-capture">Lead Capture</MenuItem>
+                <MenuItem value="custom-webhook">Custom Webhook</MenuItem>
+              </Select>
+            </FormControl>
+            {element.settings.action === 'custom-webhook' && (
+              <TextField
+                label="Webhook URL"
+                value={element.settings.webhookUrl || ''}
+                onChange={(e) => handleChange('settings.webhookUrl', e.target.value)}
+                fullWidth
+                margin="normal"
+              />
+            )}
+          </>
+        );
+        
+      case 'customHtml':
+        return (
+          <>
+            <TextField
+              label="Custom HTML"
+              value={element.content}
+              onChange={(e) => handleChange('content', e.target.value)}
+              multiline
+              rows={8}
+              fullWidth
+              margin="normal"
+            />
+            <Typography variant="caption" color="text.secondary">
+              Warning: Custom HTML can affect the security and stability of your funnel. Use with caution.
+            </Typography>
+          </>
+        );
+        
+      default:
+        return (
+          <Typography>No properties available for this element type</Typography>
+        );
+    }
+  };
+
+  return (
+    <Box>
+      <Typography variant="subtitle1" gutterBottom>
+        Edit {element.type.charAt(0).toUpperCase() + element.type.slice(1)}
+      </Typography>
+      <Divider sx={{ mb: 2 }} />
+      {renderProperties()}
+    </Box>
+  );
+}
+
+// Component to edit page settings
+function PageSettings({ page }: { page: any }) {
+  return (
+    <Box>
+      <Typography variant="subtitle1" gutterBottom>
+        Page Settings
+      </Typography>
+      <Divider sx={{ mb: 2 }} />
+      <TextField
+        label="Page Name"
+        value={page.name}
+        fullWidth
+        margin="normal"
+      />
+      <TextField
+        label="URL Path"
+        value={page.path}
+        fullWidth
+        margin="normal"
+        helperText="The URL path for this page (e.g., /landing, /thank-you)"
+      />
+      <FormControl fullWidth margin="normal">
+        <InputLabel>SEO Settings</InputLabel>
+        <Select
+          label="SEO Settings"
+          value="basic"
+        >
+          <MenuItem value="basic">Basic</MenuItem>
+          <MenuItem value="advanced">Advanced</MenuItem>
+        </Select>
+      </FormControl>
+      <TextField
+        label="Page Title"
+        defaultValue={page.name}
+        fullWidth
+        margin="normal"
+        helperText="Used for SEO and browser tab title"
+      />
+      <TextField
+        label="Meta Description"
+        multiline
+        rows={2}
+        fullWidth
+        margin="normal"
+        helperText="Brief description of the page for search engines"
+      />
+    </Box>
+  );
+} from 'react';
+import { useRouter } from 'next/router';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import {
+  Box,
+  Container,
+  Grid,
+  Paper,
+  Typography,
+  Divider,
+  Button,
+  IconButton,
+  TextField,
+  Tabs,
+  Tab,
+  Menu,
+  MenuItem,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  FormControl,
+  InputLabel,
+  Select,
+  Snackbar,
+  Alert,
+} from '@mui/material';
+import SaveIcon from '@mui/icons-material/Save';
+import PreviewIcon from '@mui/icons-material/Preview';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
+import TextFieldsIcon from '@mui/icons-material/TextFields';
+import ImageIcon from '@mui/icons-material/Image';
+import VideoLibraryIcon from '@mui/icons-material/VideoLibrary';
+import SmartButtonIcon from '@mui/icons-material/SmartButton';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import ViewColumnIcon from '@mui/icons-material/ViewColumn';
+import CodeIcon from '@mui/icons-material/Code';
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
+import DashboardLayout from '../../../../components/layouts/DashboardLayout';
+import Head from 'next/head';
+
+// Element types that can be added to the funnel page
+const elementTypes = [
+  { type: 'heading', label: 'Heading', icon: <TextFieldsIcon /> },
+  { type: 'paragraph', label: 'Paragraph', icon: <TextFieldsIcon /> },
+  { type: 'image', label: 'Image', icon: <ImageIcon /> },
+  { type: 'video', label: 'Video', icon: <VideoLibraryIcon /> },
+  { type: 'button', label: 'Button', icon: <SmartButtonIcon /> },
+  { type: 'form', label: 'Form', icon: <CheckBoxIcon /> },
+  { type: 'column', label: 'Columns', icon: <ViewColumnIcon /> },
+  { type: 'customHtml', label: 'Custom HTML', icon: <CodeIcon /> },
+];
+
+// Mock funnel data
+const mockFunnel = {
+  id: '1',
+  name: 'E-commerce Product Launch',
+  description: 'A funnel for launching a new product with pre-sale and upsell pages',
+  status: 'draft',
+  pages: [
+    {
+      id: 'page-1',
+      name: 'Landing Page',
+      path: '/landing',
+      elements: [
+        {
+          id: 'element-1',
+          type: 'heading',
+          content: 'Welcome to Our Product Launch',
+          settings: {
+            fontSize: 'h2',
+            alignment: 'center',
+          },
+        },
+        {
+          id: 'element-2',
+          type: 'paragraph',
+          content: 'Learn how our revolutionary product can help you solve your problems.',
+          settings: {
+            fontSize: 'body1',
+            alignment: 'center',
+          },
+        },
+        {
+          id: 'element-3',
+          type: 'image',
+          content: '/placeholder-image.jpg',
+          settings: {
+            width: '100%',
+            alignment: 'center',
+            altText: 'Product image',
+          },
+        },
+        {
+          id: 'element-4',
+          type: 'button',
+          content: 'Get Started Now',
+          settings: {
+            size: 'large',
+            color: 'primary',
+            alignment: 'center',
+            action: 'next-page',
+          },
+        },
+      ],
+    },
+    {
+      id: 'page-2',
+      name: 'Opt-in Page',
+      path: '/opt-in',
+      elements: [
+        {
+          id: 'element-5',
+          type: 'heading',
+          content: 'Sign Up for Early Access',
+          settings: {
+            fontSize: 'h3',
+            alignment: 'center',
+          },
+        },
+        {
+          id: 'element-6',
+          type: 'form',
+          content: {
+            fields: [
+              { name: 'name', label: 'Your Name', type: 'text', required: true },
+              { name: 'email', label: 'Email Address', type: 'email', required: true },
+            ],
+            submitButton: 'Reserve My Spot',
+          },
+          settings: {
+            alignment: 'center',
+            action: 'next-page',
+          },
+        },
+      ],
+    },
+  ],
+};
+
+export default function FunnelBuilder() {
+  const router = useRouter();
+  const { id } = router.query;
+  
+  const [funnel, setFunnel] = useState(mockFunnel);
+  const [currentPageIndex, setCurrentPageIndex] = useState(0);
+  const [tabValue, setTabValue] = useState(0);
+  const [selectedElement, setSelectedElement] = useState<string | null>(null);
+  const [aiSuggestionOpen, setAiSuggestionOpen] = useState(false);
+  const [saveSnackbarOpen, setSaveSnackbarOpen] = useState(false);
+  
+  const currentPage = funnel.pages[currentPageIndex];
+  
+  useEffect(() => {
+    // In a real app, fetch the funnel data from the API
+    // fetchFunnel(id).then(data => setFunnel(data));
+  }, [id]);
+  
+  const handleDragEnd = (result: any) => {
+    if (!result.destination) return;
+    
+    const items = Array.from(currentPage.elements);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+    
+    const updatedPages = [...funnel.pages];
+    updatedPages[currentPageIndex].elements = items;
+    
+    setFunnel({
+      ...funnel,
+      pages: updatedPages,
+    });
+  };
+  
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+  };
+  
+  const handleAddElement = (elementType: string) => {
+    const newElement = {
+      id: `element-${Date.now()}`,
+      type: elementType,
+      content: getDefaultContentForType(elementType),
+      settings: getDefaultSettingsForType(elementType),
+    };
+    
+    const updatedPages = [...funnel.pages];
+    updatedPages[currentPageIndex].elements.push(newElement);
+    
+    setFunnel({
+      ...funnel,
+      pages: updatedPages,
+    });
+    
+    setSelectedElement(newElement.id);
+  };
+  
+  const handleElementSelect = (elementId: string) => {
+    setSelectedElement(elementId);
+    setTabValue(1); // Switch to the Properties tab
+  };
+  
+  const handleElementUpdate = (elementId: string, field: string, value: any) => {
+    const updatedPages = [...funnel.pages];
+    const elementIndex = updatedPages[currentPageIndex].elements.findIndex(el => el.id === elementId);
+    
+    if (elementIndex !== -1) {
+      if (field.startsWith('settings.')) {
+        const settingField = field.replace('settings.', '');
+        updatedPages[currentPageIndex].elements[elementIndex].settings = {
+          ...updatedPages[currentPageIndex].elements[elementIndex].settings,
+          [settingField]: value,
+        };
+      } else {
+        updatedPages[currentPageIndex].elements[elementIndex][field] = value;
+      }
+      
+      setFunnel({
+        ...funnel,
+        pages: updatedPages,
+      });
+    }
+  };
+  
+  const handleDeleteElement = (elementId: string) => {
+    const updatedPages = [...funnel.pages];
+    updatedPages[currentPageIndex].elements = updatedPages[currentPageIndex].elements.filter(
+      el => el.id !== elementId
+    );
+    
+    setFunnel({
+      ...funnel,
+      pages: updatedPages,
+    });
+    
+    setSelectedElement(null);
+  };
+  
+  const handleSaveFunnel = () => {
+    // In a real app, send the funnel data to the API
+    // saveFunnel(funnel).then(() => {
+    //   setSaveSnackbarOpen(true);
+    // });
+    setSaveSnackbarOpen(true);
+  };
+  
+  const handleAiSuggestion = () => {
+    setAiSuggestionOpen(true);
+  };
+  
+  const handleAiSuggestionClose = () => {
+    setAiSuggestionOpen(false);
+  };
+  
+  const getDefaultContentForType = (type: string) => {
+    switch (type) {
+      case 'heading':
+        return 'New Heading';
+      case 'paragraph':
+        return 'Enter your text here';
+      case 'image':
+        return '/placeholder-image.jpg';
+      case 'video':
+        return 'https://www.youtube.com/embed/dQw4w9WgXcQ';
+      case 'button':
+        return 'Click Me';
+      case 'form':
+        return {
+          fields: [
+            { name: 'email', label: 'Email Address', type: 'email', required: true },
+          ],
+          submitButton: 'Submit',
+        };
+      case 'column':
+        return {
+          columns: [
+            { elements: [] },
+            { elements: [] },
+          ],
+        };
+      case 'customHtml':
+        return '<div>Custom HTML here</div>';
+      default:
+        return '';
+    }
+  };
+  
+  const getDefaultSettingsForType = (type: string) => {
+    switch (type) {
+      case 'heading':
+        return {
+          fontSize: 'h3',
+          alignment: 'left',
+        };
+      case 'paragraph':
+        return {
+          fontSize: 'body1',
+          alignment: 'left',
+        };
+      case 'image':
+        return {
+          width: '100%',
+          alignment: 'center',
+          altText: 'Image description',
+        };
+      case 'video':
+        return {
+          width: '100%',
+          height: '315px',
+          controls: true,
+        };
+      case 'button':
+        return {
+          size: 'medium',
+          color: 'primary',
+          alignment: 'center',
+          action: 'none',
+        };
+      case 'form':
+        return {
+          alignment: 'left',
+          backgroundColor: '#f5f5f5',
+          padding: '20px',
+          borderRadius: '4px',
+          action: 'none',
+        };
+      case 'column':
+        return {
+          gap: '20px',
+        };
+      case 'customHtml':
+        return {};
+      default:
+        return {};
+    }
+  };
+  
+  return (
+    <DashboardLayout>
+      <Head>
+        <title>
+          {funnel ? `Editing: ${funnel.name} | Kickflip Funnels` : 'Funnel Builder | Kickflip Funnels'}
+        </title>
+      </Head>
+      
+      <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Box>
+          <Typography variant="h5" component="h1">
+            {funnel.name}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {funnel.description}
+          </Typography>
+        </Box>
+        
+        <Box>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<SaveIcon />}
+            onClick={handleSaveFunnel}
+            sx={{ mr: 1 }}
+          >
+            Save
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<PreviewIcon />}
+            onClick={() => window.open(`/preview/${funnel.id}`, '_blank')}
+          >
+            Preview
+          </Button>
+        </Box>
+      </Box>
+      
+      <Grid container spacing={2}>
+        {/* Page Tabs */}
+        <Grid item xs={12}>
+          <Paper sx={{ mb: 2 }}>
+            <Tabs
+              value={currentPageIndex}
+              onChange={(e, newValue) => setCurrentPageIndex(newValue)}
+              variant="scrollable"
+              scrollButtons="auto"
+            >
+              {funnel.pages.map((page, index) => (
+                <Tab key={page.id} label={page.name} />
+              ))}
+              <Tab icon={<AddIcon />} aria-label="add page" />
+            </Tabs>
+          </Paper>
+        </Grid>
+        
+        {/* Main Editor Area */}
+        <Grid item xs={12} md={8}>
+          <Paper sx={{ p: 2, minHeight: '600px' }}>
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <Droppable droppableId="elements">
+                {(provided) => (
+                  <Box
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    sx={{ minHeight: '500px' }}
+                  >
+                    {currentPage.elements.map((element, index) => (
+                      <Draggable key={element.id} draggableId={element.id} index={index}>
+                        {(provided) => (
+                          <Box
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            sx={{
+                              mb: 2,
+                              border: selectedElement === element.id ? '2px solid #2196f3' : '1px dashed #ccc',
+                              p: 2,
+                              borderRadius: 1,
+                              position: 'relative',
+                              cursor: 'pointer',
+                            }}
+                            onClick={() => handleElementSelect(element.id)}
+                          >
+                            <Box
+                              {...provided.dragHandleProps}
+                              sx={{
+                                position: 'absolute',
+                                top: '5px',
+                                right: '5px',
+                                display: 'flex',
+                              }}
+                            >
+                              <IconButton size="small">
+                                <DragIndicatorIcon fontSize="small" />
+                              </IconButton>
+                              <IconButton size="small" onClick={() => handleDeleteElement(element.id)}>
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                            </Box>
+                            
+                            {/* Render element based on its type */}
+                            {renderElement(element)}
+                          </Box>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                    
+                    {currentPage.elements.length === 0 && (
+                      <Box sx={{ textAlign: 'center', p: 4, border: '1px dashed #ccc', borderRadius: 1 }}>
+                        <Typography color="text.secondary">
+                          Drag and drop elements here to build your page
+                        </Typography>
+                      </Box>
+                    )}
+                  </Box>
+                )}
+              </Droppable>
+            </DragDropContext>
+          </Paper>
+        </Grid>
+        
+        {/* Sidebar */}
+        <Grid item xs={12} md={4}>
+          <Paper sx={{ height: '100%' }}>
+            <Tabs value={tabValue} onChange={handleTabChange}>
+              <Tab label="Elements" />
+              <Tab label="Properties" disabled={!selectedElement} />
+              <Tab label="Page Settings" />
+            </Tabs>
+            
+            <Box sx={{ p: 2, height: 'calc(600px - 48px)', overflow: 'auto' }}>
+              {/* Elements Tab */}
+              {tabValue === 0 && (
+                <>
+                  <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="subtitle1">Add Elements</Typography>
+                    <Button
+                      startIcon={<AutoFixHighIcon />}
+                      onClick={handleAiSuggestion}
+                      size="small"
+                    >
+                      AI Suggestions
+                    </Button>
+                  </Box>
+                  <Divider sx={{ mb: 2 }} />
+                  <List>
+                    {elementTypes.map((element) => (
+                      <ListItem
+                        key={element.type}
+                        button
+                        onClick={() => handleAddElement(element.type)}
+                        sx={{ mb: 1, border: '1px solid #e0e0e0', borderRadius: 1 }}
+                      >
+                        <ListItemIcon>{element.icon}</ListItemIcon>
+                        <ListItemText primary={element.label} />
+                      </ListItem>
+                    ))}
+                  </List>
+                </>
+              )}
+              
+              {/* Properties Tab */}
+              {tabValue === 1 && selectedElement && (
+                <ElementProperties
+                  element={currentPage.elements.find(el => el.id === selectedElement)!}
+                  onUpdate={handleElementUpdate}
+                />
+              )}
+              
+              {/* Page Settings Tab */}
+              {tabValue === 2 && (
+                <PageSettings page={currentPage} />
+              )}
+            </Box>
+          </Paper>
+        </Grid>
+      </Grid>
+      
+      {/* AI Suggestion Dialog */}
+      <Dialog open={aiSuggestionOpen} onClose={handleAiSuggestionClose} maxWidth="md" fullWidth>
+        <DialogTitle>AI Suggestions</DialogTitle>
+        <DialogContent>
+          <Typography gutterBottom>
+            Based on your funnel type and target audience, here are some suggestions to improve your page:
+          </Typography>
+          <List>
+            <ListItem>
+              <ListItemIcon><AutoFixHighIcon color="primary" /></ListItemIcon>
+              <ListItemText 
+                primary="Add a compelling headline" 
+                secondary="Try: 'Transform Your Business with Our Revolutionary Product'" 
+              />
+              <Button size="small">Add</Button>
+            </ListItem>
+            <ListItem>
+              <ListItemIcon><AutoFixHighIcon color="primary" /></ListItemIcon>
+              <ListItemText 
+                primary="Include social proof" 
+                secondary="Add testimonials or trust badges to increase conversion rates" 
+              />
+              <Button size="small">Add</Button>
+            </ListItem>
+            <ListItem>
+              <ListItemIcon><AutoFixHighIcon color="primary" /></ListItemIcon>
+              <ListItemText 
+                primary="Add urgency element" 
+                secondary="Consider adding a countdown timer to create a sense of urgency" 
+              />
+              <Button size="small">Add</Button>
+            </ListItem>
+          </List>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleAiSuggestionClose}>Close</Button>
+          <Button variant="contained" onClick={handleAiSuggestionClose}>
+            Apply All Suggestions
+          </Button>
+        </DialogActions>
+      </Dialog>
+      
+      {/* Save Snackbar */}
+      <Snackbar
+        open={saveSnackbarOpen}
+        autoHideDuration={4000}
+        onClose={() => setSaveSnackbarOpen(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert onClose={() => setSaveSnackbarOpen(false)} severity="success">
+          Funnel saved successfully!
+        </Alert>
+      </Snackbar>
+    </DashboardLayout>
+  );
+}
+
+// Helper function to render elements based on their type
+function renderElement(element: any) {
+  switch (element.type) {
+    case 'heading':
+      return (
+        <Typography 
+          variant={element.settings.fontSize} 
+          align={element.settings.alignment}
+          sx={{ pt: 2 }}
+        >
+          {element.content}
+        </Typography>
+      );
+    case 'paragraph':
+      return (
+        <Typography 
+          variant={element.settings.fontSize} 
+          align={element.settings.alignment}
+        >
+          {element.content}
+        </Typography>
+      );
+    case 'image':
+      return (
+        <Box sx={{ textAlign: element.settings.alignment }}>
+          <img 
+            src={element.content} 
+            alt={element.settings.altText} 
+            style={{ width: element.settings.width, maxWidth: '100%' }}
+          />
+        </Box>
+      );
+    case 'video':
+      return (
+        <Box sx={{ textAlign: 'center' }}>
+          <iframe
+            width={element.settings.width}
+            height={element.settings.height}
+            src={element.content}
+            title="Video Player"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          ></iframe>
+        </Box>
+      );
+    case 'button':
+      return (
+        <Box sx={{ textAlign: element.settings.alignment }}>
+          <Button 
+            variant="contained" 
+            color={element.settings.color} 
+            size={element.settings.size}
+          >
+            {element.content}
+          </Button>
+        </Box>
+      );
+    case 'form':
+      return (
+        <Box sx={{ 
+          textAlign: element.settings.alignment,
+          backgroundColor: element.settings.backgroundColor,
+          padding: element.settings.padding,
+          borderRadius: element.settings.borderRadius,
+        }}>
+          <form>
+            {element.content.fields.map((field: any, index: number) => (
+              <TextField
+                key={index}
+                label={field.label}
+                type={field.type}
+                required={field.required}
+                fullWidth
+                margin="normal"
+                disabled // Disabled in editor mode
+              />
+            ))}
+            <Button 
+              variant="contained" 
+              color="primary" 
+              sx={{ mt: 2 }}
+              disabled // Disabled in editor mode
+            >
+              {element.content.submitButton}
+            </Button>
+          </form>
+        </Box>
+      );
+    case 'customHtml':
+      return (
+        <Box>
+          <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+            Custom HTML (preview not available in editor)
+          </Typography>
+          <pre style={{ 
+            backgroundColor: '#f5f5f5', 
+            padding: '8px', 
+            borderRadius: '4px',
+            overflow: 'auto',
+            fontSize: '12px',
+          }}>
+            {element.content}
+          </pre>
+        </Box>
+      );
+    default:
+      return <Typography>Unknown element type: {element.type}</Typography>;
+  }
+}
